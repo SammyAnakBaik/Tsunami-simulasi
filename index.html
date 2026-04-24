@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Tsunami Aceh 2004</title>
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="loadingScreen">
+  <div class="load-content">
+    <div class="load-icon">🌊</div>
+    <h1>TSUNAMI ACEH <span>2004</span></h1>
+    <p>Simulasi Historis Edukasi</p>
+    <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
+    <div class="load-status" id="loadStatus">Memuat dunia...</div>
+  </div>
+</div>
+
+<div id="diffScreen" class="screen hidden">
+  <div class="diff-wrap">
+    <div class="screen-badge">SEBELUM MULAI</div>
+    <h2>Tingkat Kesulitan</h2>
+    <div class="diff-cards">
+      <div class="diff-card" data-d="easy" onclick="selectDiff(this)">
+        <div class="d-icon">🟢</div><div class="d-name">MUDAH</div>
+        <ul><li>Tsunami lebih lambat</li><li>5 NPC diselamatkan</li><li>Panduan lengkap</li></ul>
+      </div>
+      <div class="diff-card active" data-d="normal" onclick="selectDiff(this)">
+        <div class="d-icon">🟡</div><div class="d-name">NORMAL</div>
+        <ul><li>Kecepatan standar</li><li>8 NPC + side quest</li><li>Direkomendasikan</li></ul>
+      </div>
+      <div class="diff-card" data-d="hard" onclick="selectDiff(this)">
+        <div class="d-icon">🔴</div><div class="d-name">SULIT</div>
+        <ul><li>Tsunami sangat cepat</li><li>12 NPC + misi kompleks</li><li>Waktu sangat terbatas</li></ul>
+      </div>
+    </div>
+    <button class="btn-prim" id="diffNext">Lanjutkan →</button>
+  </div>
+</div>
+
+<div id="introScreen" class="screen hidden">
+  <div class="intro-bg"></div>
+  <div class="intro-wrap">
+    <div class="screen-badge">26 DESEMBER 2004 • 07:58 WIB</div>
+    <h1 class="intro-h1">TSUNAMI<br><span>ACEH</span></h1>
+    <p class="intro-p">Gempa <strong>9,1 SR</strong> mengguncang Samudra Hindia. Gelombang setinggi <strong>30 meter</strong> menghantam pesisir Aceh. <span class="red">±230.000 jiwa meninggal.</span></p>
+    <div class="warn-box">⚠️ Simulasi ini dibuat untuk tujuan <strong>edukasi</strong> dan mengenang para korban.</div>
+    <div class="ctrl-box" id="ctrlBox"></div>
+    <div class="tip-box">💡 <strong>Tips nyata:</strong> Saat gempa besar di pantai, <em>langsung lari ke bukit</em> tanpa menunggu peringatan!</div>
+    <button class="btn-prim" onclick="Game.startGame()">▶ MULAI SIMULASI</button>
+  </div>
+</div>
+
+<div id="pauseMenu" class="screen hidden">
+  <div class="pause-box">
+    <h2>⏸ DIJEDA</h2>
+    <div class="pause-fact" id="pauseFact"></div>
+    <button class="btn-menu" onclick="Game.resume()">▶ Lanjutkan</button>
+    <button class="btn-menu" onclick="Game.restart()">↺ Ulang</button>
+    <button class="btn-menu red" onclick="location.reload()">✕ Menu Utama</button>
+  </div>
+</div>
+
+<!-- HUD -->
+<div id="hud" class="hidden">
+  <div id="hudTop">
+    <div class="hpill" id="hClock">⏰ <span id="clockTxt">07:58</span></div>
+    <div class="hpill" id="hPhase"><span id="phaseTxt">FASE 1</span></div>
+    <div class="hpill" id="hScore">🏆 <span id="scoreTxt">0</span></div>
+  </div>
+  <div id="waveHUD" class="hidden">
+    <div class="wave-label">🌊 TSUNAMI</div>
+    <div class="wave-track"><div id="waveFill"></div></div>
+    <div id="waveDistTxt">—</div>
+  </div>
+  <div id="npcHUD">👥 <span id="npcSaved">0</span>/<span id="npcTotal">0</span></div>
+  <div id="safeDir">
+    <div class="safe-arrow" id="safeArrow">▲</div>
+    <div>ZONA AMAN</div>
+  </div>
+  <div id="missionBadge" class="hidden">
+    <div id="mbType">MISI BARU</div>
+    <div id="mbTitle">—</div>
+  </div>
+</div>
+
+<div id="interactHint" class="hidden">
+  <span class="ikey" id="iKey">E</span> <span id="iLabel">Interaksi</span>
+</div>
+
+<div id="npcDialog" class="hidden">
+  <div class="dlg-box">
+    <div class="dlg-name" id="dlgName">—</div>
+    <div class="dlg-text" id="dlgText">—</div>
+    <div class="dlg-choices" id="dlgChoices"></div>
+  </div>
+</div>
+
+<div id="narrativeBox" class="hidden">
+  <div class="narr-time" id="narrTime"></div>
+  <div class="narr-text" id="narrTxt"></div>
+</div>
+
+<div id="objPanel">
+  <div class="obj-hdr">OBJEKTIF</div>
+  <ul id="objList"></ul>
+  <div id="sidePanel" class="hidden">
+    <div class="obj-hdr" style="color:#f4a261">SIDE QUEST</div>
+    <ul id="sideList"></ul>
+  </div>
+</div>
+
+<div id="scorePop" class="hidden"></div>
+<div id="crosshair">＋</div>
+<div id="shakeOverlay"></div>
+<div id="blurOverlay"></div>
+<div id="dustLayer"></div>
+
+<!-- DECISION -->
+<div id="decisionModal" class="hidden">
+  <div class="dec-box">
+    <div class="dec-timer" id="decTimer">10</div>
+    <h3 id="decQ">—</h3>
+    <div id="decChoices"></div>
+  </div>
+</div>
+
+<!-- MOBILE CONTROLS -->
+<div id="joystickZone" class="hidden">
+  <div id="jBase"><div id="jThumb"></div></div>
+</div>
+<div id="lookZone" class="hidden"></div>
+<div id="mobBtns" class="hidden">
+  <button class="mbtn" id="mbRun">🏃</button>
+  <button class="mbtn" id="mbJump">↑</button>
+  <button class="mbtn" id="mbAct">E</button>
+  <button class="mbtn" id="mbPause">⏸</button>
+</div>
+
+<!-- GAME OVER -->
+<div id="gameOver" class="screen hidden">
+  <div class="go-box">
+    <div class="go-ico">🌊</div>
+    <h2 id="goTitle">TERTERJANG GELOMBANG</h2>
+    <p id="goDesc">—</p>
+    <div class="go-stats" id="goStats"></div>
+    <div class="go-fact" id="goFact"></div>
+    <div class="edu-box">
+      <h4>📚 Pelajaran Evakuasi</h4>
+      <ul id="eduList"></ul>
+    </div>
+    <div class="go-btns">
+      <button class="btn-prim" onclick="Game.restart()">↺ Coba Lagi</button>
+      <button class="btn-sec" onclick="location.reload()">Menu Utama</button>
+    </div>
+  </div>
+</div>
+
+<!-- WIN / ENDING -->
+<div id="endScreen" class="screen hidden">
+  <div class="end-box">
+    <div class="end-ico" id="endIco">🙏</div>
+    <h2 id="endTitle">—</h2>
+    <p id="endDesc">—</p>
+    <div class="end-stats" id="endStats"></div>
+    <div class="ending-card" id="endingCard"></div>
+    <div class="facts-box">
+      <h4>📖 Fakta Historis Tsunami Aceh 2004</h4>
+      <div id="factsGrid"></div>
+    </div>
+    <div class="edu-box">
+      <h4>🛡️ Cara Selamat dari Tsunami</h4>
+      <ul id="surviveList"></ul>
+    </div>
+    <button class="btn-prim" onclick="location.reload()">↩ Menu Utama</button>
+  </div>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/world.js"></script>
+<script src="js/npc.js"></script>
+<script src="js/player.js"></script>
+<script src="js/tsunami.js"></script>
+<script src="js/missions.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/mobile.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
